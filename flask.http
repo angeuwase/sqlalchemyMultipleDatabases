@@ -11,8 +11,24 @@ Content-Type: application/json
 
 {
     "email": "test@gmail.com",
-    "password": "password"
+    "password": "password",
+    "database": "postgres",
+    "tenantID": "tenanta"
 }
+
+
+###
+
+POST http://localhost:80/register
+Content-Type: application/json
+
+{
+    "email": "test2@gmail.com",
+    "password": "password",
+    "database": "postgres",
+    "tenantID": "tenantb"
+}
+
 
 ###
 # Login a user
@@ -23,3 +39,13 @@ Content-Type: application/json
     "email": "test@gmail.com",
     "password": "password"
 }
+
+
+###
+
+GET http://localhost:80/surveys/tenanta
+
+
+###
+
+GET http://localhost:80/surveys/tenantb

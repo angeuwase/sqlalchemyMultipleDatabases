@@ -17,6 +17,10 @@ def create_app(test_config=None):
         SECRET_KEY = os.getenv('SECRET_KEY', default='A very terrible secret key.'),
         SQLALCHEMY_TRACK_MODIFICATIONS = False,
         SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASEDIR, 'main.sqlite')
+        #SQLALCHEMY_BINDS = {
+
+          #  'tenant': 'sqlite:///' + os.path.join(BASEDIR, 'tenant.sqlite')}
     )
+
 
     return app
