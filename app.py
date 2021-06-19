@@ -9,6 +9,7 @@ import os
 #from werkzeug.wrappers import Request
 from contextlib import closing
 import psycopg2
+import functools
 
 
 app = create_app()
@@ -44,7 +45,7 @@ class User(mainDB.Model):
 @app.before_request
 def findTenant():
     # request - flask.request
-    tenantID = request.path.split('/')[2]
+    tenantID = request.path.split('/')[1]
     print(tenantID)
 
     tenant = User.query.filter_by(tenantID=tenantID).first()
@@ -76,14 +77,11 @@ def findTenant():
         print('error connecting to DB')
         print(error)
         
-
- 
-    
-
-
 @app.teardown_request
 def teardown_request(exception):
     g.tenantDB.close()
+
+
 
 
 
@@ -133,8 +131,10 @@ def register():
         }
         return make_response(jsonify(responseObject)), 202
 
-@app.route('/login', methods=['POST'])
-def login():
+@app.route('/<tenantID>/login', methods=['POST'])
+def login(tenantID):
+
+        print('printing tenant id', tenantID)
         
         # get the request message payload
         data = request.get_json()
@@ -164,7 +164,7 @@ def login():
 
 
 #@app.before_request
-@app.route('/surveys/<tenantID>')
+@app.route('/<tenantID>/surveys')
 def getTenantSurvey(tenantID):
 
     conn = g.tenantDB

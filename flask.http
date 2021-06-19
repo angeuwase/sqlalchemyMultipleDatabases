@@ -32,7 +32,17 @@ Content-Type: application/json
 
 ###
 # Login a user
-POST http://localhost:80/login
+POST http://localhost:80/tenanta/login
+Content-Type: application/json
+
+{
+    "email": "test@gmail.com",
+    "password": "password"
+}
+
+
+###
+POST http://localhost:80/tenantb/login
 Content-Type: application/json
 
 {
@@ -43,9 +53,9 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:80/surveys/tenanta
+GET http://localhost:80/tenanta/surveys
 
 
 ###
 
-GET http://localhost:80/surveys/tenantb
+GET http://localhost:80/tenantb/surveys
