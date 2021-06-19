@@ -1,0 +1,25 @@
+
+# Home route: ping first to create database
+GET http://localhost:80
+
+###
+# Register a user
+# Ping once for valid registration
+# Ping twice to see rejection of already registered user
+POST http://localhost:80/register
+Content-Type: application/json
+
+{
+    "email": "test@gmail.com",
+    "password": "password"
+}
+
+###
+# Login a user
+POST http://localhost:80/login
+Content-Type: application/json
+
+{
+    "email": "test@gmail.com",
+    "password": "password"
+}
