@@ -41,50 +41,62 @@ class User(mainDB.Model):
     
     # just do here everything what you need...
 
-## Middleware
-@app.before_request
-def findTenant():
-    # request - flask.request
-    tenantID = request.path.split('/')[1]
-    print(tenantID)
 
-    tenant = User.query.filter_by(tenantID=tenantID).first()
-    if not tenant:
-        return 'No tenant'
 
-    database = tenant.database
 
-    print(database)
+
+def getTenantID(f):
+    @functools.wraps(f)
+    def wrapped(*args, **kwargs):
+        #do work before original function
+        tenantID = request.path.split('/')[1]
+        print(tenantID)
+        tenant = User.query.filter_by(tenantID=tenantID).first()
+        if not tenant:
+            return 'No tenant'
+
+        database = tenant.database
+
+        print(database)
+        
+        try: 
+            if database == 'postgres':
+                conn = psycopg2.connect(
+                host="localhost",
+                database=tenantID,
+                user="postgres",
+                password="")
+
+                cur = conn.cursor()
+
+                print('PostgreSQL database version:')
+                cur.execute('SELECT version()')
+                db_version = cur.fetchone()
+                print(db_version)
+
+                g.tenantDB = conn
+            
+        except (Exception, psycopg2.DatabaseError) as error:
+            print('error connecting to DB')
+            print(error)
+
     
-    try: 
-        if database == 'postgres':
-            conn = psycopg2.connect(
-            host="localhost",
-            database=tenantID,
-            user="postgres",
-            password="")
 
-            cur = conn.cursor()
+        return f(*args, **kwargs)
+    
 
-            print('PostgreSQL database version:')
-            cur.execute('SELECT version()')
-            db_version = cur.fetchone()
-            print(db_version)
-
-            g.tenantDB = conn
         
-    except (Exception, psycopg2.DatabaseError) as error:
-        print('error connecting to DB')
-        print(error)
-        
+    return wrapped
+
 @app.teardown_request
 def teardown_request(exception):
-    g.tenantDB.close()
-
-
-
-
-
+    try:
+        
+        g.tenantDB.close()
+        print("Removed db session.")
+    except:
+        pass
+    
 
 ## Main Application ##
 
@@ -132,6 +144,7 @@ def register():
         return make_response(jsonify(responseObject)), 202
 
 @app.route('/<tenantID>/login', methods=['POST'])
+@getTenantID
 def login(tenantID):
 
         print('printing tenant id', tenantID)
@@ -164,7 +177,9 @@ def login(tenantID):
 
 
 #@app.before_request
+
 @app.route('/<tenantID>/surveys')
+@getTenantID
 def getTenantSurvey(tenantID):
 
     conn = g.tenantDB
